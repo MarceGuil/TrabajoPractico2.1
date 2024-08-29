@@ -1,45 +1,60 @@
+/* memory.css */
+
+.fixed-grid {
+    display: grid;
+    gap: 10px; /* Espaciado entre cartas */
+    grid-template-columns: repeat(auto-fill, minmax(120px, 1fr)); /* Columnas adaptables */
+}
+
+.cell {
+    width: 120px; /* Ancho de las cartas */
+    height: 180px; /* Altura de las cartas */
+}
+
+/* Estilos de la carta */
 .card {
-    perspective: 1000px;
-    cursor: pointer;
-    width: 100%;
-    height: 150px;
-    margin: 10px;
+    perspective: 1000px; /* Profundidad para efecto 3D */
+    cursor: pointer; /* Cambia el cursor al pasar sobre la carta */
+    width: 100%; /* Ancho completo */
+    height: 150px; /* Altura de la carta */
+    margin: 10px; /* Margen entre cartas */
 }
 
 .card-inner {
-    position: relative;
-    width: 100%;
-    height: 100%;
-    transform-style: preserve-3d;
-    transition: transform 0.6s;
+    position: relative; /* Posicionamiento relativo */
+    width: 100%; /* Ancho completo */
+    height: 100%; /* Altura completa */
+    transform-style: preserve-3d; /* Habilita 3D */
+    transition: transform 0.6s; /* Transición suave al voltear */
 }
 
 .card.flipped .card-inner {
-    transform: rotateY(180deg);
+    transform: rotateY(180deg); /* Voltear la carta */
 }
 
+/* Frontal y trasera de la carta */
 .card-front,
 .card-back {
-    position: absolute;
-    width: 100%;
-    height: 100%;
-    backface-visibility: hidden;
-    display: flex;
-    justify-content: center;
-    align-items: center;
+    position: absolute; /* Posicionamiento absoluto */
+    width: 100%; /* Ancho completo */
+    height: 100%; /* Altura completa */
+    backface-visibility: hidden; /* Ocultar la cara trasera al voltear */
+    display: flex; /* Flexbox para centrar contenido */
+    justify-content: center; /* Centrado horizontal */
+    align-items: center; /* Centrado vertical */
 }
 
 .card-front {
-    background: #f0f0f0;
-    border-radius: 10px;
+    background: #f0f0f0; /* Color de fondo frontal */
+    border-radius: 10px; /* Bordes redondeados */
 }
 
 .card-back {
-    transform: rotateY(180deg);
+    transform: rotateY(180deg); /* Voltear la cara trasera */
 }
 
 img {
-    max-width: 100%;
-    max-height: 100%;
-    object-fit: contain;
+    max-width: 100%; /* Ancho máximo de la imagen */
+    max-height: 100%; /* Altura máxima de la imagen */
+    object-fit: contain; /* Mantener la proporción de la imagen */
 }

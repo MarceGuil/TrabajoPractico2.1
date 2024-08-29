@@ -1,3 +1,5 @@
+// memory.js
+
 class Card {
     constructor(name, img) {
         this.name = name;
@@ -22,14 +24,14 @@ class Card {
         return cardElement;
     }
 
-    #flip() {
+    toggleFlip() {
+        this.isFlipped = !this.isFlipped;
         const cardElement = this.element.querySelector(".card");
-        cardElement.classList.add("flipped");
+        cardElement.classList.toggle("flipped", this.isFlipped);
     }
 
-    #unflip() {
-        const cardElement = this.element.querySelector(".card");
-        cardElement.classList.remove("flipped");
+    matches(otherCard) {
+        return this.name === otherCard.name; // Compara los nombres de las cartas
     }
 }
 
@@ -38,29 +40,31 @@ class Board {
         this.cards = cards;
         this.fixedGridElement = document.querySelector(".fixed-grid");
         this.gameBoardElement = document.getElementById("game-board");
+        this.flippedCards = [];
     }
 
-    #calculateColumns() {
-        const numCards = this.cards.length;
-        let columns = Math.floor(numCards / 2);
-
-        columns = Math.max(2, Math.min(columns, 12));
-
-        if (columns % 2 !== 0) {
-            columns = columns === 11 ? 12 : columns - 1;
+    shuffleCards() {
+        for (let i = this.cards.length - 1; i > 0; i--) {
+            const j = Math.floor(Math.random() * (i + 1));
+            [this.cards[i], this.cards[j]] = [this.cards[j], this.cards[i]];
         }
-
-        return columns;
     }
 
-    #setGridColumns() {
-        const columns = this.#calculateColumns();
-        this.fixedGridElement.className = `fixed-grid has-${columns}-cols`;
+    reset() {
+        this.flipDownAllCards();
+        this.shuffleCards(); // Mezclar cartas al reiniciar
+        this.render();
+    }
+
+    flipDownAllCards() {
+        this.cards.forEach((card) => {
+            card.isFlipped = false;
+            card.toggleFlip(); // Voltear todas las cartas hacia abajo
+        });
     }
 
     render() {
-        this.#setGridColumns();
-        this.gameBoardElement.innerHTML = "";
+        this.gameBoardElement.innerHTML = ""; // Limpiar el tablero
         this.cards.forEach((card) => {
             card.element
                 .querySelector(".card")
@@ -70,56 +74,58 @@ class Board {
     }
 
     onCardClicked(card) {
-        if (this.onCardClick) {
-            this.onCardClick(card);
-        }
-    }
-}
-
-class MemoryGame {
-    constructor(board, flipDuration = 500) {
-        this.board = board;
-        this.flippedCards = [];
-        this.matchedCards = [];
-        if (flipDuration < 350 || isNaN(flipDuration) || flipDuration > 3000) {
-            flipDuration = 350;
-            alert(
-                "La duración de la animación debe estar entre 350 y 3000 ms, se ha establecido a 350 ms"
-            );
-        }
-        this.flipDuration = flipDuration;
-        this.board.onCardClick = this.#handleCardClick.bind(this);
-        this.board.reset();
-    }
-
-    #handleCardClick(card) {
         if (this.flippedCards.length < 2 && !card.isFlipped) {
             card.toggleFlip();
             this.flippedCards.push(card);
 
             if (this.flippedCards.length === 2) {
-                setTimeout(() => this.checkForMatch(), this.flipDuration);
+                setTimeout(() => this.checkForMatch(), 1000);
             }
         }
+    }
+
+    checkForMatch() {
+        const [firstCard, secondCard] = this.flippedCards;
+        if (firstCard.matches(secondCard)) {
+            // Coincidencia encontrada
+            this.flippedCards = [];
+        } else {
+            firstCard.toggleFlip();
+            secondCard.toggleFlip();
+            this.flippedCards = [];
+        }
+    }
+}
+
+class MemoryGame {
+    constructor(board) {
+        this.board = board;
+        this.board.render(); // Renderizar el tablero
+    }
+
+    resetGame() {
+        this.board.reset(); // Reiniciar el tablero
     }
 }
 
 document.addEventListener("DOMContentLoaded", () => {
     const cardsData = [
         { name: "Python", img: "./img/Python.svg" },
-        { name: "JavaScript", img: "./img/JS.svg" },
+        { name: "JavaScript", img: "./img/JavaScript.svg" },
         { name: "Java", img: "./img/Java.svg" },
         { name: "CSharp", img: "./img/CSharp.svg" },
         { name: "Go", img: "./img/Go.svg" },
         { name: "Ruby", img: "./img/Ruby.svg" },
     ];
 
+    // Duplicar cartas
     const cards = cardsData.flatMap((data) => [
         new Card(data.name, data.img),
         new Card(data.name, data.img),
     ]);
+
     const board = new Board(cards);
-    const memoryGame = new MemoryGame(board, 1000);
+    const memoryGame = new MemoryGame(board);
 
     document.getElementById("restart-button").addEventListener("click", () => {
         memoryGame.resetGame();
